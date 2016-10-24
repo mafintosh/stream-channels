@@ -7,6 +7,8 @@ For two-way (full duplex) multiplexing see the [multiplex](https:/github.com/max
 npm install stream-channels
 ```
 
+[![build status](http://img.shields.io/travis/mafintosh/stream-channels.svg?style=flat)](http://travis-ci.org/mafintosh/stream-channels)
+
 ## Usage
 
 ``` js
