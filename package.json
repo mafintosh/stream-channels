@@ -1,0 +1,30 @@
+{
+  "name": "stream-channels",
+  "version": "0.0.0",
+  "description": "Simple one-way stream multiplexer with very few features",
+  "main": "index.js",
+  "dependencies": {
+    "duplexify": "^3.5.0",
+    "inherits": "^2.0.3",
+    "length-prefixed-stream": "^1.5.0",
+    "readable-stream": "^2.1.5",
+    "varint": "^4.0.1"
+  },
+  "devDependencies": {
+    "standard": "^8.4.0",
+    "tape": "^4.6.2"
+  },
+  "scripts": {
+    "test": "standard && tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/stream-channels.git"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/stream-channels/issues"
+  },
+  "homepage": "https://github.com/mafintosh/stream-channels"
+}
