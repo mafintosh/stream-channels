@@ -180,3 +180,51 @@ tape('back pressure resumes', function (t) {
 
   stream.pipe(stream)
 })
+
+tape('close channels on stream close', function (t) {
+  t.plan(10)
+
+  var stream = channels(function (c) {
+    c.once('close', function () {
+      t.pass('remote channel closed')
+    })
+  })
+
+  for (var i = 0; i < 5; i++) {
+    var c = stream.createChannel()
+    c.write('open please')
+    c.once('close', function () {
+      t.pass('local channel closed')
+    })
+  }
+
+  stream.pipe(stream)
+
+  process.nextTick(function () {
+    stream.destroy()
+  })
+})
+
+tape('close channels on stream end', function (t) {
+  t.plan(10)
+
+  var stream = channels(function (c) {
+    c.once('close', function () {
+      t.pass('remote channel closed')
+    })
+  })
+
+  for (var i = 0; i < 5; i++) {
+    var c = stream.createChannel()
+    c.write('open please')
+    c.once('close', function () {
+      t.pass('local channel closed')
+    })
+  }
+
+  stream.pipe(stream)
+
+  process.nextTick(function () {
+    stream.end()
+  })
+})

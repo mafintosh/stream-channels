@@ -28,6 +28,9 @@ function StreamChannels (opts, onchannel) {
   this._decode = lpstream.decode()
   this._decode.on('data', parse)
 
+  this.on('finish', this._finalize)
+  this.on('close', this._finalize)
+
   this.setWritable(this._decode)
   this.setReadable(this._encode)
 
@@ -83,6 +86,20 @@ StreamChannels.prototype.destroy = function (err) {
   this.destroyed = true
   if (err) this.emit('error', err)
   this.emit('close')
+
+  var i = 0
+
+  for (i = 0; i < this._incoming.length; i++) {
+    if (this._incoming[i]) this._incoming[i].destroy()
+  }
+
+  for (i = 0; i < this._outgoing.length; i++) {
+    if (this._outgoing[i]) this._outgoing[i].destroy()
+  }
+}
+
+StreamChannels.prototype._finalize = function () {
+  this.destroy()
 }
 
 function Sink () {
@@ -128,6 +145,7 @@ IncomingChannel.prototype._push = function (data) {
 
   if (!data.length) {
     this.push(null)
+    this.destroy()
     return
   }
 
