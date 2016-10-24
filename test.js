@@ -228,3 +228,34 @@ tape('close channels on stream end', function (t) {
     stream.end()
   })
 })
+
+tape('timeout', function (t) {
+  var stream = channels()
+
+  var timeout = setTimeout(function () {}, 100000) // keep process running
+
+  stream.setTimeout(1000, function () {
+    clearTimeout(timeout)
+    t.pass('timed out')
+    t.end()
+  })
+})
+
+tape('keep aliving', function (t) {
+  var stream = channels()
+
+  var timeout = setTimeout(function () {}, 100000) // keep process running
+
+  stream.setTimeout(1000, function () {
+    t.fail('should not timeout')
+  })
+
+  stream.pipe(stream)
+
+  setTimeout(function () {
+    clearTimeout(timeout)
+    stream.destroy()
+    t.pass('did not timeout')
+    t.end()
+  }, 3000)
+})

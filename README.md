@@ -55,6 +55,11 @@ Create a new channel.
 
 Emitted when a remote creates a new channel. Will emit the data the remote writes to it.
 
+#### `stream.setTimeout(ms, [ontimeout])`
+
+Emit a timeout when if the stream is inactive for ~ms milliseconds.
+Will start a heartbeat as well.
+
 ## Wire Protocol
 
 The wire protocol is as follows.
@@ -71,6 +76,8 @@ The wire protocol is as follows.
 
 Channels are lazily opened., The first time you receive data on a channel id, that channel is opened.
 Receiving an empty data buffer indicates that the channel is closed.
+
+Messages received with length 0 should be ignored and can be used as a keep alive signal.
 
 ## Back pressure
 

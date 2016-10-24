@@ -4,6 +4,8 @@ var inherits = require('inherits')
 var varint = require('varint')
 var stream = require('readable-stream')
 
+var KEEP_ALIVE = new Buffer([0])
+
 module.exports = StreamChannels
 
 function StreamChannels (opts, onchannel) {
@@ -25,8 +27,12 @@ function StreamChannels (opts, onchannel) {
   this._incoming = []
   this._waiting = 0
   this._encode = new Sink()
-  this._decode = lpstream.decode()
+  this._decode = lpstream.decode({allowEmpty: true})
   this._decode.on('data', parse)
+
+  this._keepAlive = 0
+  this._remoteKeepAlive = 0
+  this._interval = null
 
   this.on('finish', this._finalize)
   this.on('close', this._finalize)
@@ -43,6 +49,25 @@ function StreamChannels (opts, onchannel) {
 
 inherits(StreamChannels, duplexify)
 
+StreamChannels.prototype.setTimeout = function (ms, ontimeout) {
+  if (this.destroyed) return
+
+  if (ontimeout) this.once('timeout', ontimeout)
+
+  var self = this
+
+  this._keepAlive = 0
+  this._remoteKeepAlive = 0
+
+  clearInterval(this._interval)
+  this._interval = setInterval(kick, (ms / 4) | 0)
+  if (this._interval.unref) this._interval.unref()
+
+  function kick () {
+    self._kick()
+  }
+}
+
 StreamChannels.prototype.createChannel = function (opts) {
   if (this.destroyed) return null
 
@@ -56,6 +81,8 @@ StreamChannels.prototype.createChannel = function (opts) {
 }
 
 StreamChannels.prototype._parse = function (data) {
+  this._remoteKeepAlive = 0
+
   if (this.destroyed) return
   if (!data.length) return
 
@@ -84,6 +111,9 @@ StreamChannels.prototype._parse = function (data) {
 StreamChannels.prototype.destroy = function (err) {
   if (this.destroyed) return
   this.destroyed = true
+
+  clearInterval(this._interval)
+
   if (err) this.emit('error', err)
   this.emit('close')
 
@@ -95,6 +125,24 @@ StreamChannels.prototype.destroy = function (err) {
 
   for (i = 0; i < this._outgoing.length; i++) {
     if (this._outgoing[i]) this._outgoing[i].destroy()
+  }
+}
+
+StreamChannels.prototype._kick = function () {
+  if (this._remoteKeepAlive > 4) {
+    clearInterval(this._interval)
+    this.emit('timeout')
+    return
+  }
+
+  this.emit('tick')
+  this._remoteKeepAlive++
+
+  if (this._keepAlive > 2) {
+    this._encode.push(KEEP_ALIVE)
+    this._keepAlive = 0
+  } else {
+    this._keepAlive++
   }
 }
 
@@ -206,6 +254,8 @@ OutgoingChannel.prototype._finalize = function () {
 
 OutgoingChannel.prototype._write = function (data, enc, cb) {
   if (this.stream.destroyed) return cb()
+
+  this.stream._keepAlive = 0
 
   if (this._preallocated) {
     this.stream._encode._push(data, cb)
