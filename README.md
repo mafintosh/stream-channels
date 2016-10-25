@@ -1,7 +1,7 @@
 # stream-channels
 
 Simple one-way stream multiplexer with very few features.
-For two-way (full duplex) multiplexing see the [multiplex](https:/github.com/maxogden/multiplex) module.
+For two-way (full duplex) multiplexing see the [multiplex](https://github.com/maxogden/multiplex) module.
 
 ```
 npm install stream-channels
