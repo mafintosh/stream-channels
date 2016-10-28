@@ -27,7 +27,7 @@ function StreamChannels (opts, onchannel) {
   this._incoming = []
   this._waiting = 0
   this._encode = new Sink()
-  this._decode = lpstream.decode({allowEmpty: true})
+  this._decode = lpstream.decode({allowEmpty: true, limit: opts.messageLimit || 5 * 1024 * 1024})
   this._decode.on('data', parse)
 
   this._keepAlive = 0

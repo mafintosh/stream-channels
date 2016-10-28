@@ -259,3 +259,17 @@ tape('keep aliving', function (t) {
     t.end()
   }, 3000)
 })
+
+tape('max message limit', function (t) {
+  var stream = channels(function (s) {
+    s.resume()
+  })
+
+  var ch = stream.createChannel()
+  ch.write(new Buffer(5 * 1024 * 1024))
+  stream.on('error', function () {
+    t.pass('had error')
+    t.end()
+  })
+  stream.pipe(stream)
+})
