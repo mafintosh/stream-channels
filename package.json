@@ -11,11 +11,14 @@
     "varint": "^5.0.0"
   },
   "devDependencies": {
+    "dev-zero-stream": "^1.1.0",
+    "nanobench": "^1.0.3",
     "standard": "^8.4.0",
     "tape": "^4.6.2"
   },
   "scripts": {
-    "test": "standard && tape test.js"
+    "test": "standard && tape test.js",
+    "bench": "nanobench benchmark.js"
   },
   "repository": {
     "type": "git",
