@@ -22,6 +22,7 @@ function StreamChannels (opts, onchannel) {
 
   this.destroyed = false
   this.limit = opts.limit || 1024
+  this.state = null // set by someone else. here for perf
 
   this._outgoing = []
   this._incoming = []
