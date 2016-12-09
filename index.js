@@ -176,6 +176,7 @@ function IncomingChannel (parent, channel) {
   this.idLength = varint.encodingLength(channel)
   this.stream = parent
   this.destroyed = false
+  this.state = null // set by someone else. here for perf
 
   this._waiting = 0
 }
@@ -219,6 +220,7 @@ function OutgoingChannel (parent, channel, opts) {
   this.idLength = varint.encodingLength(channel)
   this.stream = parent
   this.destroyed = false
+  this.state = null // set by someone else. here for perf
 
   this._preallocated = !!(opts && opts.preallocated)
   this.on('finish', this._finalize)
