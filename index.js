@@ -129,6 +129,10 @@ StreamChannels.prototype.destroy = function (err) {
   }
 }
 
+StreamChannels.prototype.finalize = function () {
+  this._encode.end()
+}
+
 StreamChannels.prototype._kick = function () {
   if (this._remoteKeepAlive > 4) {
     clearInterval(this._interval)
@@ -154,6 +158,7 @@ StreamChannels.prototype._finalize = function () {
 function Sink () {
   stream.Readable.call(this)
   this._pending = []
+  this._ended = false
 }
 
 inherits(Sink, stream.Readable)
@@ -165,8 +170,14 @@ Sink.prototype._read = function () {
 }
 
 Sink.prototype._push = function (data, cb) {
+  if (this._ended) return cb()
   if (this.push(data)) cb()
   else this._pending.push(cb)
+}
+
+Sink.prototype.end = function () {
+  this._ended = true
+  this.push(null)
 }
 
 function IncomingChannel (parent, channel) {
