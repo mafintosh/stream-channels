@@ -88,7 +88,9 @@ StreamChannels.prototype._parse = function (data) {
   if (!data.length) return
 
   var offset = 0
-  var channel = varint.decode(data, offset)
+  var channel = decodeVarint(data, offset)
+  if (channel === -1) return this.destroy(new Error('Invalid channel id'))
+
   offset += varint.decode.bytes
 
   if (channel >= this.limit) return this.destroy(new Error('Too many open channels'))
@@ -281,3 +283,11 @@ OutgoingChannel.prototype._write = function (data, enc, cb) {
 }
 
 function noop () {}
+
+function decodeVarint (buf, offset) {
+  try {
+    return varint.decode(buf, offset)
+  } catch (err) {
+    return -1
+  }
+}
